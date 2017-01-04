@@ -1,0 +1,23 @@
+{
+  "name": "walkingMan",
+  "version": "1.0.0",
+  "description": "walkingMan",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon server/test.js --exec babel-node"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-env": "^1.1.4",
+    "babel-register": "^6.18.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "mocha-sinon": "^1.1.6",
+    "nodemon": "^1.11.0",
+    "sinon": "^2.0.0-pre.4"
+  }
+}
