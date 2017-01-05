@@ -10,12 +10,48 @@
 ```
 
 ## 数据生成模拟程序
-
-## 模拟数据访问API
 - 步数数据
 - 脉搏数据
 - 能量消耗数据
 
+## Database: walkingMan
+### health-data
+```json
+{
+  "step": "this.step",
+  "totalStep": "this.totalStep",
+  "energyConsumption": "this.energyConsumption",
+  "totalEnergyConsumption": "this.totalEnergyConsumption",
+  "pulse": "this.pulse",
+  "updateTime":"time"
+}
+```
+### user
+```json
+{
+  "name": "name",
+  "password": "password",
+  "weight": "weight",
+  "height": "height",
+  "health-data": []
+}
+```
+
+## 模拟数据访问API
+### `api/users`
+- `POST`: 增加用户
+
+### `api/users／{username}`
+- `GET`: 获取用户信息
+- `PUT`: 修改用户信息
+
+### `api/users／{username}／health-data`
+- `GET`: 获取用户健康信息
+- `POST`: 上传用户健康信息
+
 ## 个人健康数据查看面板
 ## 个人健康数据上传
 ## 接收数据的 web服务
+
+## 残留的问题
+jwt一人一secret

@@ -1,0 +1,4 @@
+{
+  "secretString": "dontuseinproduction",
+  "mongooseURL": "mongodb://localhost:27017/walkingMan"
+}

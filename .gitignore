@@ -19,7 +19,7 @@ node_modules
  # Compiled C++ files
 *.out
 
-# Logs
+# Log
 logs
 *.log
 npm-debug.log*

@@ -4,7 +4,7 @@ class DataGenerator {
     this.step = 0 // 10s内步数
     this.pulse = 70 // 10s内平均脉搏
     // 20步1卡
-    this.totoalEnergyConsumption = initData ? initData['totoalEnergyConsumption'] : 0
+    this.totalEnergyConsumption = initData ? initData['totalEnergyConsumption'] : 0
     this.energyConsumption = 0 // 10s内能量消耗
 
     this.stepRange = [0, 30]
@@ -17,17 +17,17 @@ class DataGenerator {
     // this.pulse = this.pulseRange[0] + Math.floor(Math.random() * (this.stepRange[1] - this.stepRange[0]))
     this.pulse = this.pulseRange[0] + this.step / this.stepRange[1] * (this.pulseRange[1] - this.pulseRange[0])
     this.energyConsumption = this.step / 20
-    this.totoalEnergyConsumption += this.energyConsumption
+    this.totalEnergyConsumption += this.energyConsumption
 
     const returnData = {
       'step': this.step,
       'totalStep': this.totalStep,
       'energyConsumption': this.energyConsumption,
-      'totoalEnergyConsumption': this.totoalEnergyConsumption,
-      'pulse': this.pulse
+      'totalEnergyConsumption': this.totalEnergyConsumption,
+      'pulse': this.pulse,
+      'updateTime': new Date().getTime()
     }
     console.log(returnData)
-
     return returnData
   }
 }
