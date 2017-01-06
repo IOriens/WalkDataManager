@@ -7,11 +7,13 @@ const UserSchema = new Schema({
   username: String,
   email: String,
   password: String,
-  userid: Number
+  userid: Number,
+  registerDate: Date
 })
 
 UserSchema.methods.add = function () {
   this.password = md5(this.password)
+  this.registerDate = new Date().getTime()
 
   return new Promise((resolve, reject) => {
     this.save((err, data) => {
@@ -52,10 +54,8 @@ UserSchema.static('countUser', function () {
   return new Promise((resolve, reject) => {
     this.count({}, (err, user) => {
       if (err) {
-        console.log(err)
         reject(err)
       } else {
-        console.log(user)
         resolve(user)
       }
     })

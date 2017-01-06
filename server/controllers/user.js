@@ -23,12 +23,14 @@ const usersPost = async (ctx, next) => {
         password: body.password,
         userid: userNum + 1
       })
+
       await user.add()
       ctx.status = 200
       ctx.body = {'msg': 'user created'}
     }
   } catch (err) {
-    console.log(err)
+    ctx.status = 500
+    ctx.body = {err}
   }
 }
 

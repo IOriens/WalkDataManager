@@ -1,6 +1,6 @@
 class DataGenerator {
   constructor (initData) {
-    this.totalStep = initData ? ['totalStep'] : 0 // 总步数
+    this.totalStep = initData ? initData['totalStep'] : 0 // 总步数
     this.step = 0 // 10s内步数
     this.pulse = 70 // 10s内平均脉搏
     // 20步1卡
@@ -27,7 +27,6 @@ class DataGenerator {
       'pulse': this.pulse,
       'updateTime': new Date().getTime()
     }
-    console.log(returnData)
     return returnData
   }
 }
