@@ -1,0 +1,86 @@
+<template>
+    <!-- <div class="ct" style="height: {{ctHeight}}">
+        <image class="img" style="width: 400px; height: 400px;" src="{{img}}"></image>
+        <text style="font-size: 42;">Hey, Buddy!</text>
+    </div> -->
+    <div style="flex-direction: column;">
+        <wxc-tabbar id="tab" tab-items={{tabItems}}></wxc-tabbar>
+    </div>
+</template>
+
+<style>
+    .ct {
+        width: 750;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .img {
+        margin-bottom: 20px;
+    }
+</style>
+
+<script>
+    require('weex-components');
+
+    import getUrl from './common/getUrl'
+
+    module.exports = {
+        data: {
+            // ctHeight: 800,
+            // username: '',
+            // token: '',
+            tabItems: [{
+                    index: 0,
+                    title: '数据',
+                    titleColor: '#000000',
+                    icon: '',
+                    // image: 'http://gtms01.alicdn.com/tps/i1/TB1qw.hMpXXXXagXXXX9t7RGVXX-46-46.png',
+                    image: require('./img/data-grey.png'),
+                    selectedImage: require('./img/data-red.png'),
+                    src: 'walking-data.js',
+                    visibility: 'visible',
+                }, {
+                    index: 1,
+                    title: '上传',
+                    titleColor: '#000000',
+                    icon: '',
+                    // image: 'http://gtms03.alicdn.com/tps/i3/TB1LEn9MpXXXXaUXpXX9t7RGVXX-46-46.png',
+                    // selectedImage: 'http://gtms02.alicdn.com/tps/i2/TB1qysbMpXXXXcnXXXX9t7RGVXX-46-46.png',
+                    image: require('./img/upload-grey.png'),
+                    selectedImage: require('./img/upload-red.png'),
+                    src: 'upload-data.js',
+                    visibility: 'hidden',
+                },
+                // {
+                //     index: 2,
+                //     title: 'tab3',
+                //     titleColor: '#000000',
+                //     icon: '',
+                //     image: 'http://gtms01.alicdn.com/tps/i1/TB1B0v5MpXXXXcvXpXX9t7RGVXX-46-46.png',
+                //     selectedImage: 'http://gtms04.alicdn.com/tps/i4/TB1NxY5MpXXXXcrXpXX9t7RGVXX-46-46.png',
+                //     src: 'component/tabbar/tabbar-item.js?itemId=tab3',
+                //     visibility: 'hidden',
+                // }
+            ],
+        },
+        created: function() {
+            const bundleUrl = this.$getConfig().bundleUrl;
+            for (var i = 0; i < this.tabItems.length; i++) {
+                var tabItem = this.tabItems[i];
+                tabItem.src = getUrl(bundleUrl, tabItem.src, 'dist', null, 1)
+                console.log(tabItem.src)
+            }
+        },
+        ready: function() {
+            const self = this
+            this.ctHeight = this.$getConfig().env.deviceHeight
+
+            this.$on('tabBar.onClick', function(e) {
+                var detail = e.detail;
+                nativeLog('tabBar.onClick ' + detail.index);
+            });
+            this.$el('tab').username = 'dfs'
+        }
+    }
+</script>

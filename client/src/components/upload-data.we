@@ -1,0 +1,142 @@
+<template>
+    <div class="wrapper">
+        <div class="header">
+            <text style="color:{{color}};font-size: 60;font-weight: bold;">{{text}}</text>
+        </div>
+        <div class="form-box">
+            <div class="form-cell">
+                <text class="text">体重</text>
+                <input type="number" oninput="inputChange" name="username" value={{weight}} placeholder="请输入体重" class="input"></input>
+            </div>
+            <div class="form-cell">
+                <text class="text">身高</text>
+                <input type="number" oninput="inputChange" name="height" value={{height}} placeholder="请输入身高" class="input"></input>
+            </div>
+            <div class="form-cell">
+                <text class="text">生日</text>
+                <input type="date" oninput="inputChange" name="birthday" value={{birthday}} placeholder="请输入生日" class="input"></input>
+            </div>
+            <div class="button-cell">
+                <wxc-button type="danger" size="middle" value="上传" onclick={{submit}}></wxc-button>
+            </div>
+        </div>
+</template>
+
+<style>
+    .wrapper {
+        width: 750;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        align-items: center;
+    }
+
+    .header {
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .form-box {
+        flex: 3;
+        align-self: stretch;
+    }
+
+    .text {
+        font-size: 42;
+        flex: 1;
+        font-family: "Open Sans", sans-serif;
+    }
+
+    .form-cell,
+    .button-cell {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding-left: 60;
+        padding-right: 60;
+        padding-bottom: 40;
+        /*align-items: */
+    }
+
+    .button-cell {
+        justify-content: center;
+        margin-top: 40;
+    }
+
+    .input {
+        font-size: 42;
+        /*border: 1px solid black;*/
+        /*background-color: #f8f8f8;*/
+        flex: 3;
+    }
+</style>
+
+<script>
+    require('weex-components');
+  
+    import storage from '@weex-module/storage'
+    import stream from '@weex-module/stream'
+    import Config from 'Config'
+    import modal from '@weex-module/modal'
+
+    module.exports = {
+        data: {
+            color: '#ff0000',
+            text: 'Upload Data',
+            height: 160,
+            weight: 60,
+            birthday: new Date(817776000000),
+            username: '',
+            token: ''
+        },
+        created: function() {
+            var bundleUrl = this.$getConfig().bundleUrl;
+            nativeLog('bundleUrl = ' + bundleUrl);
+        },
+        ready: function() {
+            const self = this
+            storage.getItem('token', function(e) {
+                self.token = e.data
+                storage.getItem('username', function(e) {
+                    self.username = e.data
+
+                })
+            })
+        },
+        methods: {
+            submit: function(e) {
+                const self = this
+                const body = {
+                    height: this.height,
+                    weight: this.weight,
+                    birthday: this.birthday
+                }
+
+                stream.fetch({
+                    method: 'PUT',
+                    url: `${Config.serverUrl}/api/users/${this.username}`,
+                    type: 'json',
+                    body,
+                    headers: {
+                      'Authorization': `Bearer ${self.token}`
+                    }
+                }, function(response) {
+                    console.log(response)
+                    modal.toast({
+                        'message': JSON.stringify(response.data),
+                        duration: 6
+                    });
+
+                }, function(response) {
+                    console.log('err', response)
+                });
+            },
+            inputChange: function(e) {
+                this[e.target.attr.name] = e.value
+            }
+        }
+    }
+</script>

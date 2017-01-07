@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "nodemon server/test.js --exec babel-node",
-    "server": "DEBUG=http,worker nodemon server/index.js --exec babel-node"
+    "server": "DEBUG=http, nodemon server/index.js --exec babel-node",
+      "server2": "DEBUG=http, babel-node server/index.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "debug": "^2.6.0",
+    "kcors": "^1.3.1",
     "koa": "^2.0.0-alpha.7",
     "koa-bodyparser": "^3.2.0",
     "koa-jwt": "^2.1.0",

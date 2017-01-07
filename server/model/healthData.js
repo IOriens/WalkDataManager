@@ -4,6 +4,7 @@ const Schema = mongoose.Schema
 
 const HealthDataSchema = new Schema({
   userid: String,
+  step: Number,
   totalStep: Number,
   energyConsumption: Number,
   totalEnergyConsumption: Number,

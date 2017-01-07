@@ -24,7 +24,7 @@ class DataWorker {
     // await this.init()
     this.generateDataAndSave()
     setInterval(this.generateDataAndSave.bind(this), 10 * 1000)
-    setInterval(this.cleanData, 120 * 1000)
+    setInterval(this.cleanData, 150 * 1000)
   }
 
   async cleanData () {

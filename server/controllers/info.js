@@ -18,6 +18,10 @@ const infoPut = async (ctx, next) => {
     const info = new Info(body)
     const refinedInfo = Object.assign({}, info.toObject())
     delete refinedInfo._id
+    // console.log(refinedInfo)
+    await Info.updateInfo(ctx.state.user.id, refinedInfo)
+    ctx.status = 200
+    ctx.body = {'msg': 'success'}
   } catch (err) {
     ctx.status = 500
     ctx.body = {err}

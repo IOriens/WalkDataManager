@@ -1,0 +1,397 @@
+<template>
+    <div class="wrapper">
+        <div class="header{{loading}}">
+            <text class="text{{loading}}" style="color:#f00;">{{text}}</text>
+        </div>
+        <wxc-panel class="panel{{loading}} info{{loading}}" title="User Info" type="danger">
+            <div class="info-cell">
+                <text class="text-l">身高</text>
+                <text class="text-r">{{height}}</text>
+            </div>
+            <div class="info-cell">
+                <text class="text-l">体重</text>
+                <text class="text-r">{{weight}}</text>
+            </div>
+            <div class="info-cell">
+                <text class="text-l">生日</text>
+                <text class="text-r">{{birthday}}</text>
+            </div>
+        </wxc-panel>
+        <wx-ownpanel class="panel{{loading}} data{{loading}}" id="dataPane" title="Health Data" style="display:{{infoDisplay}};" type="danger">
+            <list class="list">
+                <refresh class="refresh-view" display="{{refresh_display}}" onrefresh="onrefresh">
+                    <text if="{{(refresh_display==='hide')}}"> ↓ pull to refresh </text>
+                    <loading-indicator class="indicator"></loading-indicator>
+                </refresh>
+                <cell onappear="onappear" ondisappear="ondisappear" class="row" repeat="{{rows}}" index="{{$index}}">
+                    <div class="item">
+
+                        <text class="item-title">10s内走了{{step}}步</text>
+                        <text class="item-title">10s内平均脉搏：{{pulse}}</text>
+                        <text class="item-title">10s能量消耗 {{energyConsumption}} 卡路里</text>
+                        <text class="item-title">总步数 {{totalStep}}</text>
+                        <text class="item-title">更新时间: {{ ' '}}{{updateTime}}</text>
+
+
+                        <!-- "step": 28,
+                        "totalStep": 29213,
+                        "energyConsumption": 1.4,
+                        "totalEnergyConsumption": 1460.649999999998,
+                        "pulse": 116,
+                        "updateTime": "2017-01-07T14:28:59.742Z", -->
+                    </div>
+                </cell>
+                <loading class="loading-view" display="{{loading_display}}" onloading="onloading">
+                    <text if="{{(loading_display==='hide')}}">↑ Loadmore </text>
+                    <loading-indicator class="indicator"></loading-indicator>
+                </loading>
+            </list>
+        </wx-ownpanel>
+    </div>
+
+</template>
+
+<style>
+    .wrapper {
+        width: 750;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .text {
+        font-size: 60;
+        font-weight: bold;
+        font-family: "Open Sans", sans-serif;
+    }
+
+    .text-l,
+    .text-r {
+        color: #000;
+        font-size: 40;
+    }
+
+    .text-l {
+        flex: 2;
+    }
+
+    .text-r {
+        flex: 4;
+    }
+
+    .info-cell {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+    }
+    /*Loading*/
+
+    .text-loading {
+        font-size: 60px;
+    }
+
+    .panel-loading {
+        display: none;
+    }
+    /*Load Done*/
+
+    .panel-done {
+        align-self: stretch;
+        display: flex;
+    }
+
+    .header-done {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .info-done {
+        /*flex: 2;*/
+    }
+
+    .data-done {
+        flex: 6;
+    }
+
+    .text-done {
+        font-size: 60;
+        font-weight: bold;
+        font-family: "Open Sans", sans-serif;
+    }
+    /*List Styles*/
+
+    .list {
+        /*height: 450;*/
+        flex: 1;
+    }
+
+    .count {
+        font-size: 48;
+        margin: 10;
+    }
+
+    .indicator {
+        height: 40;
+        width: 40;
+        color: #45b5f0;
+    }
+
+    .refresh-arrow {
+        font-size: 30px;
+        color: #45b5f0;
+    }
+
+    .row {
+        width: 750;
+    }
+
+    .item {
+        justify-content: center;
+        border-bottom-width: 2;
+        border-bottom-color: #c0c0c0;
+        /*height: 100;*/
+        padding: 20;
+    }
+
+    .item-title {}
+
+    .refresh-view {
+        width: 750;
+        height: 100;
+        display: -ms-flex;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        -webkit-box-align: center;
+        align-items: center;
+    }
+
+    .loading-view {
+        width: 750;
+        height: 100;
+        display: -ms-flex;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        -webkit-box-align: center;
+        align-items: center;
+    }
+
+    .indicator {
+        height: 60;
+        width: 60;
+        color: #889967;
+    }
+</style>
+
+<script>
+    require('weex-components');
+    import modal from '@weex-module/modal'
+    require('./wx-ownpanel.we')
+    import storage from '@weex-module/storage'
+    import stream from '@weex-module/stream'
+    import Config from 'Config'
+    module.exports = {
+        data: {
+            text: 'Loading Data',
+            loading: '-loading',
+            height: '未上传',
+            weight: '未上传',
+            birthday: '未上传',
+            refresh_display: 'hide',
+            loading_display: 'hide',
+            appearMin: 1,
+            appearMax: 1,
+            appearIds: [],
+            username: '',
+            token: '',
+            rows: []
+        },
+        created: function() {
+            var bundleUrl = this.$getConfig().bundleUrl;
+            nativeLog('bundleUrl = ' + bundleUrl);
+        },
+        ready: function() {
+            //  this.$el('dataPane').children[1].style.height = '100px';
+            //  const result  =
+            //  console.log(result)
+            const self = this
+            storage.getItem('token', function(e) {
+                self.token = e.data
+                storage.getItem('username', function(e) {
+                    self.username = e.data
+                    self.getUserInfo()
+                    self.getHealthData(0)
+                })
+            })
+
+            setTimeout(() => {
+                this.loading = '-done'
+                this.text = "Health Data"
+            }, 1000)
+        },
+
+        methods: {
+            getInfo: function() {
+
+            },
+            pureData: function(...data) {
+                if (this.rows.length > 0) {
+                    data = this.rows.concat(data)
+                }
+
+                this.rows = data.map(row => {
+                    if (row) {
+
+                        // → "12/19/2012, 19:00:00"
+                        const options = {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            second: 'numeric',
+                            hour12: false
+                        };
+
+                        row.updateTime = new Date(row.updateTime).toLocaleString('en-US', options)
+
+                    }
+                    return row
+                })
+            },
+            deepPureData: function(...data) {
+                this.rows = data.map(row => {
+                    if (row) {
+                        const options = {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            second: 'numeric',
+                            hour12: false
+                        };
+
+                        row.updateTime = new Date(row.updateTime).toLocaleString('en-US', options)
+                    }
+                    return row
+                })
+            },
+            onappear: function(e) {
+
+                var appearId = this.rows[e.target.attr.index]._id;
+                nativeLog('+++++', appearId);
+                var appearIds = this.appearIds;
+                appearIds.push(appearId);
+                this.getMinAndMaxIds(appearIds);
+
+            },
+            ondisappear: function(e) {
+                var disAppearId = this.rows[e.target.attr.index]._id;
+                nativeLog('+++++', disAppearId);
+                var appearIds = this.appearIds;
+                var index = appearIds.indexOf(disAppearId);
+                if (index > -1) {
+                    appearIds.splice(index, 1);
+                }
+                this.getMinAndMaxIds(appearIds);
+            },
+            getMinAndMaxIds: function(appearIds) {
+                appearIds.sort(function(a, b) {
+                    return a - b;
+                });
+                this.appearIds = appearIds;
+                this.appearMax = appearIds[appearIds.length - 1];
+                this.appearMin = appearIds[0];
+            },
+            onrefresh: function(e) {
+                var self = this;
+                self.refresh_display = 'show';
+                modal.toast({
+                    'message': 'onrefresh'
+                });
+
+                this.getHealthData(0, () => {
+                    self.refresh_display = 'hide';
+                })
+
+
+                this.getUserInfo()
+
+
+            },
+            onloading: function() {
+                var self = this;
+                self.loading_display = 'show';
+
+                modal.toast({
+                    'message': 'onloading'
+                });
+
+                this.getHealthData(this.rows.length / 10, () => {
+                    self.loading_display = 'hide';
+                })
+
+            },
+            getUserInfo: function() {
+                const self = this
+                stream.fetch({
+                    method: 'GET',
+                    url: `${Config.serverUrl}/api/users/${this.username}`,
+                    type: 'json',
+                    headers: {
+                        'Authorization': `Bearer ${self.token}`
+                    }
+                }, function(response) {
+                    const res = response.data
+                    self.height = res.height
+                    self.weight = res.weight
+
+                    const options = {
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric',
+
+                    };
+
+                    self.birthday = new Date(res.birthday).toLocaleString('en-US', options)
+                    // self.birthday = new Intl.DateTimeFormat('en-GB').format(new Date(res.birthday))
+                }, function(response) {
+                    // console.log('err', response)
+                })
+            },
+            getHealthData: function(skip, cb) {
+                const self = this
+                stream.fetch({
+                    method: 'GET',
+                    url: `${Config.serverUrl}/api/users/${this.username}/health-data/${skip}`,
+                    type: 'json',
+                    headers: {
+                        'Authorization': `Bearer ${self.token}`
+                    }
+                }, function(response) {
+                    const res = response.data
+
+                    if (res.length > 0 && skip === 0) {
+                        self.deepPureData.apply(self, res)
+                    } else {
+                        self.pureData.apply(self, res)
+                    }
+                    // console.log(res)
+                    if (cb) {
+                        cb()
+                    }
+                }, function(response) {
+                    // console.log('err', response)
+                })
+            }
+        }
+    }
+</script>

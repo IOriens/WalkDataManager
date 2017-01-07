@@ -1,0 +1,180 @@
+<template>
+    <div class="ct" style="height: {{ctHeight}}">
+        <div class="form-box">
+            <div class="form-cell">
+                <text class="text">用户名</text>
+                <input type="text" id="username" oninput="inputChange" name="username" value={{username}} placeholder="请输入用户名" class="input"></input>
+            </div>
+            <div class="form-cell email" style="display:{{emailDisplay}};">
+                <text class="text">Email</text>
+                <input type="text" oninput="inputChange" name="email" value={{email}} placeholder="请输入邮箱" class="input"></input>
+            </div>
+            <div class="form-cell">
+                <text class="text">密码</text>
+                <input type="password" oninput="inputChange" name="password" placeholder="请输入密码" class="input"></input>
+            </div>
+            <div class="button-cell">
+                <wxc-button type="success" size="middle" value="登录" onclick={{login}}></wxc-button>
+                <wxc-button type="success" size="middle" value={{regSub}} onclick={{register}} style="margin-left:60;"></wxc-button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style>
+    .ct {
+        width: 750;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f8f8;
+    }
+
+    .text {
+        font-size: 42;
+        flex: 1;
+    }
+
+    .form-box {
+        /*flex: 1;*/
+        align-self: stretch;
+    }
+
+    .form-cell,
+    .button-cell {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding-left: 60;
+        padding-right: 60;
+        padding-bottom: 40;
+        /*align-items: */
+    }
+
+    .button-cell {
+        justify-content: center;
+        margin-top: 40;
+    }
+
+    .input {
+        font-size: 42;
+        /*border: 1px solid black;*/
+        background-color: #f8f8f8;
+        flex: 3;
+    }
+
+    .email {
+        /*display: none;*/
+    }
+</style>
+
+<script>
+    require('weex-components');
+
+    import modal from '@weex-module/modal'
+
+    import stream from '@weex-module/stream'
+    import storage from '@weex-module/storage'
+    import Config from 'Config'
+    import getUrl from './common/getUrl'
+    import navigator from '@weex-module/navigator'
+
+    module.exports = {
+        data: {
+            ctHeight: 800,
+            username: "",
+            password: "",
+            email: "",
+            emailDisplay: "none",
+            regSub: "注册",
+            stateFlag: 0
+        },
+        ready: function() {
+            this.ctHeight = this.$getConfig().env.deviceHeight
+        },
+        methods: {
+            login: function() {
+                if (this.stateFlag === 1) {
+                    this.regStateChange(0)
+                } else {
+                    const self = this
+                    const body = {
+                        username: self.username,
+                        password: self.password
+                    }
+                    console.log(body)
+                    stream.fetch({
+                        method: 'POST',
+                        url: `${Config.serverUrl}/authentication`,
+                        type: 'json',
+                        body
+                    }, function(response) {
+                        console.log(response.data.token)
+                        if (response.status === 200) {
+                            storage.setItem('token', response.data.token, function(e) {
+                                storage.setItem('username', self.username, function(e) {
+                                    modal.toast({
+                                        'message': 'Login Success',
+                                        duration: 6
+                                    });
+                                    var bundleUrl = self.$getConfig().bundleUrl;
+                                    var url = getUrl(bundleUrl, 'dashboard.js', 'dist')
+
+                                    var params = {
+                                        'url': url,
+                                        'animated': 'true',
+                                    }
+                                    navigator.push(params, function(e) {});
+                                });
+                            });
+                        } else {
+                            modal.toast({
+                                'message': JSON.stringify(response.data),
+                                duration: 6
+                            });
+                        }
+
+                    }, function(response) {});
+                }
+            },
+            register: function() {
+                if (this.stateFlag === 0) {
+                    this.regStateChange(1)
+                } else {
+                    const self = this
+                    const body = {
+                        username: self.username,
+                        email: self.email,
+                        password: self.password
+                    }
+                    console.log(body)
+                    stream.fetch({
+                        method: 'POST',
+                        url: `${Config.serverUrl}/api/users`,
+                        type: 'json',
+                        body
+                    }, function(response) {
+                        console.log(response)
+                        modal.toast({
+                            'message': JSON.stringify(response.data),
+                            duration: 6
+                        });
+
+                    }, function(response) {});
+                }
+            },
+            regStateChange: function(state) {
+                this.stateFlag = state
+                if (state === 1) {
+                    this.emailDisplay = "flex";
+                    this.regSub = "提交"
+                } else {
+                    this.emailDisplay = "none";
+                    this.regSub = "注册"
+                }
+            },
+            inputChange: function(e) {
+                this[e.target.attr.name] = e.value
+            }
+        }
+    }
+</script>

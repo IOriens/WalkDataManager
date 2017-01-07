@@ -9,7 +9,7 @@ export default async (ctx, next) => {
 
   if (!(userInfo && md5(req.password) === userInfo.password)) {
     ctx.status = 401
-    ctx.body = 'Wrong user or password'
+    ctx.body = {'msg': 'Wrong user or password'}
     return
   }
 
