@@ -101,7 +101,8 @@
                         username: self.username,
                         password: self.password
                     }
-                    console.log(body)
+
+                    // 提交登录信息
                     stream.fetch({
                         method: 'POST',
                         url: `${Config.serverUrl}/authentication`,
@@ -109,16 +110,19 @@
                         body
                     }, function(response) {
                         console.log(response.data.token)
-                        if (response.status === 200) {
+                        if (response.status === 200) { // 登录成功
+                            // 将token 和 用户名保存在本地
                             storage.setItem('token', response.data.token, function(e) {
                                 storage.setItem('username', self.username, function(e) {
+                                    // 登录成功提示
                                     modal.toast({
                                         'message': 'Login Success',
                                         duration: 6
                                     });
+
+                                    // 登录后页面跳转
                                     var bundleUrl = self.$getConfig().bundleUrl;
                                     var url = getUrl(bundleUrl, 'dashboard.js', 'dist')
-
                                     var params = {
                                         'url': url,
                                         'animated': 'true',
@@ -127,6 +131,7 @@
                                 });
                             });
                         } else {
+                          // 登录失败提示
                             modal.toast({
                                 'message': JSON.stringify(response.data),
                                 duration: 6
@@ -140,20 +145,23 @@
                 if (this.stateFlag === 0) {
                     this.regStateChange(1)
                 } else {
+                    // 获取用户信息
                     const self = this
                     const body = {
                         username: self.username,
                         email: self.email,
                         password: self.password
                     }
-                    console.log(body)
+
+                    // 上传用户信息
                     stream.fetch({
                         method: 'POST',
                         url: `${Config.serverUrl}/api/users`,
                         type: 'json',
                         body
                     }, function(response) {
-                        console.log(response)
+
+                        //  注册成功的提示
                         modal.toast({
                             'message': JSON.stringify(response.data),
                             duration: 6

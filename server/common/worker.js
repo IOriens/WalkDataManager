@@ -20,17 +20,20 @@ class DataWorker {
     debug('info', this.user)
   }
 
+  // 定期调用下面两个worker
   async run () {
-    // await this.init()
     this.generateDataAndSave()
     setInterval(this.generateDataAndSave.bind(this), 10 * 1000)
     setInterval(this.cleanData, 150 * 1000)
   }
 
+  // 清除过期信息
   async cleanData () {
     await HealthData.removeExpiredData()
     debug('cleanData')
   }
+
+  // 为每个用户生成数据并保存
   async generateDataAndSave () {
     debug('this', this)
     await this.init()

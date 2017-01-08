@@ -23,22 +23,13 @@
                     <text if="{{(refresh_display==='hide')}}"> ↓ pull to refresh </text>
                     <loading-indicator class="indicator"></loading-indicator>
                 </refresh>
-                <cell onappear="onappear" ondisappear="ondisappear" class="row" repeat="{{rows}}" index="{{$index}}">
+                <cell class="row" repeat="{{rows}}" index="{{$index}}">
                     <div class="item">
-
                         <text class="item-title">10s内走了{{step}}步</text>
                         <text class="item-title">10s内平均脉搏：{{pulse}}</text>
                         <text class="item-title">10s能量消耗 {{energyConsumption}} 卡路里</text>
                         <text class="item-title">总步数 {{totalStep}}</text>
                         <text class="item-title">更新时间: {{ ' '}}{{updateTime}}</text>
-
-
-                        <!-- "step": 28,
-                        "totalStep": 29213,
-                        "energyConsumption": 1.4,
-                        "totalEnergyConsumption": 1460.649999999998,
-                        "pulse": 116,
-                        "updateTime": "2017-01-07T14:28:59.742Z", -->
                     </div>
                 </cell>
                 <loading class="loading-view" display="{{loading_display}}" onloading="onloading">
@@ -218,15 +209,15 @@
             nativeLog('bundleUrl = ' + bundleUrl);
         },
         ready: function() {
-            //  this.$el('dataPane').children[1].style.height = '100px';
-            //  const result  =
-            //  console.log(result)
+
             const self = this
             storage.getItem('token', function(e) {
                 self.token = e.data
                 storage.getItem('username', function(e) {
                     self.username = e.data
+                    // 请求用户信息
                     self.getUserInfo()
+                    // 请求用户健康信息
                     self.getHealthData(0)
                 })
             })
@@ -234,22 +225,21 @@
             setTimeout(() => {
                 this.loading = '-done'
                 this.text = "Health Data"
-            }, 1000)
+            }, 2000)
+
+            setInterval(() => {
+                this.onrefresh()
+            }, 10000)
         },
 
         methods: {
-            getInfo: function() {
-
-            },
-            pureData: function(...data) {
+            pureData: function(...data) { // 格式化时间信息并收入本地
                 if (this.rows.length > 0) {
                     data = this.rows.concat(data)
                 }
 
                 this.rows = data.map(row => {
                     if (row) {
-
-                        // → "12/19/2012, 19:00:00"
                         const options = {
                             year: 'numeric',
                             month: 'numeric',
@@ -259,9 +249,7 @@
                             second: 'numeric',
                             hour12: false
                         };
-
                         row.updateTime = new Date(row.updateTime).toLocaleString('en-US', options)
-
                     }
                     return row
                 })
@@ -278,38 +266,10 @@
                             second: 'numeric',
                             hour12: false
                         };
-
                         row.updateTime = new Date(row.updateTime).toLocaleString('en-US', options)
                     }
                     return row
                 })
-            },
-            onappear: function(e) {
-
-                var appearId = this.rows[e.target.attr.index]._id;
-                nativeLog('+++++', appearId);
-                var appearIds = this.appearIds;
-                appearIds.push(appearId);
-                this.getMinAndMaxIds(appearIds);
-
-            },
-            ondisappear: function(e) {
-                var disAppearId = this.rows[e.target.attr.index]._id;
-                nativeLog('+++++', disAppearId);
-                var appearIds = this.appearIds;
-                var index = appearIds.indexOf(disAppearId);
-                if (index > -1) {
-                    appearIds.splice(index, 1);
-                }
-                this.getMinAndMaxIds(appearIds);
-            },
-            getMinAndMaxIds: function(appearIds) {
-                appearIds.sort(function(a, b) {
-                    return a - b;
-                });
-                this.appearIds = appearIds;
-                this.appearMax = appearIds[appearIds.length - 1];
-                this.appearMin = appearIds[0];
             },
             onrefresh: function(e) {
                 var self = this;
@@ -322,10 +282,7 @@
                     self.refresh_display = 'hide';
                 })
 
-
                 this.getUserInfo()
-
-
             },
             onloading: function() {
                 var self = this;
@@ -347,22 +304,22 @@
                     url: `${Config.serverUrl}/api/users/${this.username}`,
                     type: 'json',
                     headers: {
+                        // 用于验证用户身份
                         'Authorization': `Bearer ${self.token}`
                     }
                 }, function(response) {
                     const res = response.data
+                    if (res == null) return
+
+                    // 读取解析数据
                     self.height = res.height
                     self.weight = res.weight
-
                     const options = {
                         year: 'numeric',
                         month: 'numeric',
                         day: 'numeric',
-
                     };
-
                     self.birthday = new Date(res.birthday).toLocaleString('en-US', options)
-                    // self.birthday = new Intl.DateTimeFormat('en-GB').format(new Date(res.birthday))
                 }, function(response) {
                     // console.log('err', response)
                 })
@@ -384,7 +341,7 @@
                     } else {
                         self.pureData.apply(self, res)
                     }
-                    // console.log(res)
+
                     if (cb) {
                         cb()
                     }
