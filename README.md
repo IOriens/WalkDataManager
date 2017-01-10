@@ -10,13 +10,17 @@
 ```
 # clone this repo
 # cd to this repo on your pc
+# install node and npm
 # install and start mongodb
+
 # run server
-cnpm i
+cd server
+npm i
 npm run server
+
 # run client
 cd client
-cnpm i
+npm i
 npm run dev
 ```
 

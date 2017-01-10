@@ -4,9 +4,9 @@
   "description": "walkingMan",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon server/test.js --exec babel-node",
-    "server": "DEBUG=http, nodemon server/index.js --exec babel-node",
-      "server2": "DEBUG=http, babel-node server/index.js"
+    "test": "nodemon ./test.js --exec babel-node",
+    "server": "DEBUG=http, nodemon ./index.js --exec babel-node",
+      "server2": "DEBUG=http, babel-node ./index.js"
   },
   "keywords": [],
   "author": "",
